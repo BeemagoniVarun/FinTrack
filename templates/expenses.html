@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+{% block title %}Expenses{% endblock %}
+
+{% block content %}
+
+<style>
+    body {
+        background: #f4f7fb;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        padding: 35px;
+        border-radius: 22px;
+        color: white;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(79, 70, 229, 0.2);
+    }
+
+    .page-header h2 {
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .page-header p {
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    .custom-card {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        background: white;
+        box-shadow: 0 6px 25px rgba(0,0,0,0.06);
+    }
+
+    .custom-card .card-body {
+        padding: 30px;
+    }
+
+    .card-title {
+        font-weight: 700;
+        margin-bottom: 25px;
+        color: #111827;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .form-control {
+        border-radius: 12px;
+        padding: 12px 14px;
+        border: 1px solid #d1d5db;
+        transition: 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 0.15rem rgba(99,102,241,0.2);
+    }
+
+    .custom-btn {
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        border: none;
+        border-radius: 12px;
+        padding: 12px 20px;
+        font-weight: 600;
+        transition: 0.3s ease;
+    }
+
+    .custom-btn:hover {
+        transform: translateY(-2px);
+        background: linear-gradient(135deg, #4338ca, #4f46e5);
+    }
+
+    .expense-table {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .expense-table thead {
+        background: #111827;
+        color: white;
+    }
+
+    .expense-table th {
+        padding: 16px;
+        font-weight: 600;
+        border: none;
+    }
+
+    .expense-table td {
+        padding: 16px;
+        vertical-align: middle;
+        border-color: #f1f5f9;
+    }
+
+    .expense-table tbody tr {
+        transition: 0.2s ease;
+    }
+
+    .expense-table tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .badge-category {
+        background: #eef2ff;
+        color: #4338ca;
+        padding: 8px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 13px;
+    }
+
+    .amount-text {
+        font-weight: 700;
+        color: #10b981;
+    }
+
+    .btn-warning,
+    .btn-danger {
+        border-radius: 10px;
+        padding: 6px 14px;
+        font-weight: 600;
+    }
+
+    .btn-warning {
+        background: #f59e0b;
+        border: none;
+    }
+
+    .btn-warning:hover {
+        background: #d97706;
+    }
+
+    .btn-danger {
+        background: #ef4444;
+        border: none;
+    }
+
+    .btn-danger:hover {
+        background: #dc2626;
+    }
+
+    @media (max-width: 768px) {
+
+        .expense-table {
+            font-size: 14px;
+        }
+
+        .expense-table th,
+        .expense-table td {
+            padding: 12px 10px;
+        }
+
+        .custom-card .card-body {
+            padding: 20px;
+        }
+    }
+</style>
+
+<!-- Header -->
+<div class="page-header">
+    <h2>💰 My Expenses</h2>
+    <p>
+        Easily manage your daily spending, organize expenses,
+        and keep your finances under control.
+    </p>
+</div>
+
+<!-- Expense Form -->
+<div class="card custom-card mb-4">
+    <div class="card-body">
+
+        <h5 class="card-title">➕ Add New Expense</h5>
+
+        <form method="POST">
+
+            {{ form.hidden_tag() }}
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    {{ form.category.label(class="form-label") }}
+                    {{ form.category(class="form-control") }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    {{ form.amount.label(class="form-label") }}
+                    {{ form.amount(class="form-control") }}
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    {{ form.date.label(class="form-label") }}
+                    {{ form.date(class="form-control") }}
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    {{ form.description.label(class="form-label") }}
+                    {{ form.description(class="form-control") }}
+                </div>
+
+            </div>
+
+            <button type="submit" class="btn btn-primary custom-btn">
+                Add Expense
+            </button>
+
+        </form>
+
+    </div>
+</div>
+
+<!-- Expense History -->
+<div class="card custom-card">
+    <div class="card-body">
+
+        <h5 class="card-title">📋 Expense History</h5>
+
+        <div class="table-responsive">
+
+            <table class="table expense-table align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for expense in expenses %}
+                    <tr>
+
+                        <td>{{ expense.date }}</td>
+
+                        <td>
+                            <span class="badge-category">
+                                {{ expense.category }}
+                            </span>
+                        </td>
+
+                        <td class="amount-text">
+                            ₹{{ expense.amount }}
+                        </td>
+
+                        <td>{{ expense.description }}</td>
+
+                        <td>
+
+                            <a href="{{ url_for('edit_expense', id=expense.id) }}"
+                               class="btn btn-sm btn-warning">
+                                Edit
+                            </a>
+
+                            <a href="{{ url_for('delete_expense', id=expense.id) }}"
+                               class="btn btn-sm btn-danger">
+                                Delete
+                            </a>
+
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

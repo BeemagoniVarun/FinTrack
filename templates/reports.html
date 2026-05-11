@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    body {
+        background: #f4f7fb;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .reports-container {
+        padding: 30px 0;
+    }
+
+    .reports-header {
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        color: white;
+        padding: 40px;
+        border-radius: 24px;
+        margin-bottom: 35px;
+        box-shadow: 0 10px 30px rgba(79, 70, 229, 0.2);
+        text-align: center;
+    }
+
+    .reports-header h2 {
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .reports-header p {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 17px;
+    }
+
+    .card {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: 0.3s ease;
+        background: white;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 35px rgba(0,0,0,0.12);
+    }
+
+    .card-body {
+        padding: 30px;
+    }
+
+    .card-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #6b7280;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .card-text {
+        font-size: 28px;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .summary-section {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 6px 25px rgba(0,0,0,0.06);
+        margin-top: 20px;
+    }
+
+    .summary-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 25px;
+    }
+
+    .table {
+        border-radius: 15px;
+        overflow: hidden;
+        margin-bottom: 0;
+    }
+
+    .table thead {
+        background: #111827;
+        color: white;
+    }
+
+    .table th {
+        border: none;
+        padding: 16px;
+        font-weight: 600;
+    }
+
+    .table td {
+        padding: 16px;
+        vertical-align: middle;
+        border-color: #f1f5f9;
+    }
+
+    .table tbody tr {
+        transition: 0.2s ease;
+    }
+
+    .table tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .chart-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 6px 25px rgba(0,0,0,0.06);
+        transition: 0.3s ease;
+        height: 100%;
+    }
+
+    .chart-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 35px rgba(0,0,0,0.12);
+    }
+
+    .chart-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 10px;
+    }
+
+    .chart-subtitle {
+        color: #6b7280;
+        margin-bottom: 20px;
+    }
+
+    .chart-img {
+        width: 100%;
+        border-radius: 18px;
+        background: #f9fafb;
+        padding: 12px;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: none;
+        border-radius: 14px;
+        padding: 14px 30px;
+        font-weight: 600;
+        font-size: 16px;
+        transition: 0.3s ease;
+        box-shadow: 0 8px 20px rgba(16,185,129,0.25);
+    }
+
+    .btn-success:hover {
+        transform: translateY(-3px);
+        background: linear-gradient(135deg, #059669, #047857);
+    }
+
+    .empty-text {
+        color: #6b7280;
+        text-align: center;
+        padding: 20px 0;
+    }
+
+    @media (max-width: 768px) {
+
+        .reports-header {
+            padding: 30px 20px;
+        }
+
+        .card-body,
+        .summary-section,
+        .chart-card {
+            padding: 20px;
+        }
+
+        .card-text {
+            font-size: 22px;
+        }
+    }
+</style>
+
+<div class="container reports-container">
+
+    <!-- Header -->
+    <div class="reports-header">
+        <h2>📊 Expense Reports</h2>
+        <p>
+            Visualize your financial activity with summaries,
+            charts, and detailed spending reports.
+        </p>
+    </div>
+
+    <!-- ORIGINAL CODE STARTS -->
+    <div class="container">
+        <h2 class="mb-4">Expense Reports</h2>
+
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Categories</h5>
+                        <p class="card-text display-6">{{ summary|length }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Highest Category</h5>
+
+                        {% if summary %}
+                            {% set top = summary|dictsort(true, 'value')|first %}
+                            <p class="card-text">{{ top[0] }} – {{ top[1] }}</p>
+                        {% else %}
+                            <p class="card-text">No data yet</p>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Spent</h5>
+
+                        <p class="card-text">
+                            {{ summary.values()|sum if summary else 0 }}
+                        </p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Summary List -->
+        <div class="summary-section">
+
+            <div class="summary-title">
+                💰 Category Summary
+            </div>
+
+            {% if summary %}
+
+                <table class="table table-bordered">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>Category</th>
+                            <th>Total Amount</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for cat, amt in summary.items() %}
+
+                        <tr>
+                            <td>{{ cat }}</td>
+                            <td>₹{{ amt }}</td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            {% else %}
+
+                <p class="empty-text">
+                    No expenses recorded yet.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+        <!-- Charts -->
+        <div class="row mt-4 g-4">
+
+            <div class="col-md-6 text-center">
+
+                <div class="chart-card">
+
+                    <div class="chart-title">
+                        🥧 Category Distribution
+                    </div>
+
+                    <div class="chart-subtitle">
+                        Category-wise breakdown of your expenses.
+                    </div>
+
+                    {% if pie_chart %}
+
+                        <img src="{{ url_for('static', filename='reports_pie.png') }}"
+                             class="img-fluid rounded shadow chart-img"
+                             alt="Pie Chart">
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6 text-center">
+
+                <div class="chart-card">
+
+                    <div class="chart-title">
+                        📈 Expenses Over Time
+                    </div>
+
+                    <div class="chart-subtitle">
+                        Track your monthly expense growth visually.
+                    </div>
+
+                    {% if bar_chart %}
+
+                        <img src="{{ url_for('static', filename='reports_bar.png') }}"
+                             class="img-fluid rounded shadow chart-img"
+                             alt="Bar Chart">
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Export Button -->
+        <div class="text-center mt-5">
+
+            <a href="{{ url_for('export') }}"
+               class="btn btn-success">
+
+                ⬇ Download CSV
+
+            </a>
+
+        </div>
+
+    </div>
+    <!-- ORIGINAL CODE ENDS -->
+
+</div>
+
+{% endblock %}
