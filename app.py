@@ -30,7 +30,7 @@ def get_summary():
 # -------------------- APP SETUP --------------------
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yoursecretkey'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:/Users/varun/OneDrive/Desktop/Money Tracker/instance/moneytracker.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///moneytracker.db'
 
 db.init_app(app)
 bcrypt = Bcrypt(app)
@@ -42,6 +42,11 @@ login_manager.login_view = 'login'
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+
+@app.route("/")
+def home():
+    return redirect(url_for("login"))
 
 
 # -------------------- AUTH ROUTES --------------------
